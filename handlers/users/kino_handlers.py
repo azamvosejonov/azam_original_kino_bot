@@ -10,6 +10,7 @@ from states.states import KinoAddState,KinoDeleteState,EditCap
 from keyboards.inline.admin import keyboard
 from loader import dp, kino_db, user_db
 from aiogram.dispatcher.handler import CancelHandler
+from keyboards.inline.admin import inline_button
 
 
 
@@ -99,14 +100,11 @@ async def message_handler(message:types.Message):
         data=kino_db.get_kino_by_post_id(post_id)
 
         if data:
-            try:
                 await bot.send_video(
                     chat_id=message.from_user.id,
                     video=data['file_id'],
-                    caption=f"{data['caption']}\n\n Eng zor kinolar @fastkinoobot da"
+                    caption=f"{data['caption']}\n\n Eng zor kinolar @kinotatuztatbot da",reply_markup=inline_button
                 )
-            except Exception as e:
-                await message.answer("Kino topildi yuborishda  xatolik yuz berdi.")
         else:
             await message.answer(f"{post_id} Hech qanday kino topilmadi ")
 
@@ -163,7 +161,7 @@ stop = False
 
 @dp.callback_query_handler(text='ad')
 async def reklama(call: CallbackQuery):
-    if call.message.from_user.id in ADMINS:
+    if call.message.from_user.id in call.from_user.id==7126357860:
         await call.message.answer("Reklama yuborilmaydi, adminlar uchun.")
         return
 
