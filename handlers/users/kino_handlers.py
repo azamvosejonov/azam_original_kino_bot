@@ -106,7 +106,7 @@ async def message_handler(message:types.Message):
                     caption=f"{data['caption']}\n\n Eng zor kinolar @kinotatuztatbot da",reply_markup=inline_button
                 )
         else:
-            await message.answer(f"{post_id} Hech qanday kino topilmadi ")
+            await message.answer(f"Uzur {post_id} Hech qanday kino topilmadi ")
 
     else:
         await message.reply("Iltimos faqat kino kodini raqam ko'rinishida yuboring ")
