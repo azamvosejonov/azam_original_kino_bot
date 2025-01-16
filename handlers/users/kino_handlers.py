@@ -161,7 +161,7 @@ stop = False
 
 @dp.callback_query_handler(text='ad')
 async def reklama(call: CallbackQuery):
-    if call.message.from_user.id==7126357860:
+    if  str(call.from_user.id) == ADMINS[0]:
         await call.message.answer("Reklama yuborilmaydi, adminlar uchun.")
         return
 
