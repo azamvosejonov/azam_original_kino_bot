@@ -40,7 +40,7 @@ ad_menu=InlineKeyboardMarkup(
 inline_button = InlineKeyboardMarkup(
     inline_keyboard=[
         [
-            InlineKeyboardButton(text="🎥 Barcha Kinolar", url="https://t.me/+2Ih8TrW_k2pkMmNi")
+            InlineKeyboardButton(text="🎥 Barcha Kinolar", url="https://t.me/kino_bot_rasmiy_kanal")
         ]
     ]
 
