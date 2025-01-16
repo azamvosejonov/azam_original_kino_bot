@@ -165,40 +165,47 @@ async def reklama(call: CallbackQuery):
         await call.message.answer("Reklama yuborilmaydi, adminlar uchun.")
         return
 
+    else:
+        await call.answer("siz admin emmassiz!")
+
     await call.message.delete()
     await call.message.answer("Reklama videosi yoki rasmini yoziv bilan yuboring.")
 
 @dp.message_handler(content_types=['photo', 'video', 'text'])
 async def handle_ad_message(ad_message: types.Message):
-    global stop  # Use the global stop flag
-    not_sent = 0
-    sent = 0
-    admins = 0
-    text = f"Xabar yuborish\nYuborilgan: {sent}\nYuborilmagan: {not_sent}\nUmumiy: 0/{user_db.count_users()}\n\nStatus: Boshlanmoqda"
-    status_message = await ad_message.answer(text, reply_markup=ad_menu)
-    users = user_db.select_all_user_ids()
+    if str(ad_message.from_user.id) == ADMINS[0]:
+        global stop  # Use the global stop flag
+        not_sent = 0
+        sent = 0
+        admins = 0
+        text = f"Xabar yuborish\nYuborilgan: {sent}\nYuborilmagan: {not_sent}\nUmumiy: 0/{user_db.count_users()}\n\nStatus: Boshlanmoqda"
+        status_message = await ad_message.answer(text, reply_markup=ad_menu)
+        users = user_db.select_all_user_ids()
 
-    for user_id in users:
-        if str(user_id) in ADMINS:
-            not_sent += 1
-            admins += 1
-            continue
+        for user_id in users:
+            if str(user_id) in ADMINS:
+                not_sent += 1
+                admins += 1
+                continue
 
-        try:
-            await ad_message.forward(user_id)
-            sent += 1
-        except:
-            not_sent += 1
+            try:
+                await ad_message.forward(user_id)
+                sent += 1
+            except:
+                not_sent += 1
 
-        text = f"Xabar yuborish\nYuborilgan: {sent}\nYuborilmagan: {not_sent} ({admins}ta Admin)\nUmumiy: {sent + not_sent}/{user_db.count_users()}\nStatus: Davom etmoqda"
-        await bot.edit_message_text(text, chat_id=ad_message.chat.id, message_id=status_message.message_id, reply_markup=ad_menu)
+            text = f"Xabar yuborish\nYuborilgan: {sent}\nYuborilmagan: {not_sent} ({admins}ta Admin)\nUmumiy: {sent + not_sent}/{user_db.count_users()}\nStatus: Davom etmoqda"
+            await bot.edit_message_text(text, chat_id=ad_message.chat.id, message_id=status_message.message_id, reply_markup=ad_menu)
 
-        if stop:
-            stop = False
-            raise CancelHandler
+            if stop:
+                stop = False
+                raise CancelHandler
+        else:
+            await ad_message.answer("siz admin emasiz!")
 
-    text = f"Xabar yuborish\nYuborilgan: {sent}\nYuborilmagan: {not_sent} ({admins}ta Admin)\nUmumiy: {user_db.count_users()}/{user_db.count_users()}\nStatus: Tugatildi"
-    await bot.edit_message_text(text, chat_id=ad_message.chat.id, message_id=status_message.message_id)
+
+        text = f"Xabar yuborish\nYuborilgan: {sent}\nYuborilmagan: {not_sent} ({admins}ta Admin)\nUmumiy: {user_db.count_users()}/{user_db.count_users()}\nStatus: Tugatildi"
+        await bot.edit_message_text(text, chat_id=ad_message.chat.id, message_id=status_message.message_id)
 
 @dp.callback_query_handler(text='pause_ad')
 async def stop_ad(call: CallbackQuery):
