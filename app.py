@@ -1,4 +1,4 @@
-from aiogram import executor
+from aiogram.utils import executor
 from loader import dp,user_db,kino_db
 import middlewares, filters, handlers
 from utils.notify_admins import on_startup_notify

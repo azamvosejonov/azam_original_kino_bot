@@ -57,6 +57,22 @@ async def from_name(message:types.Message):
 async def from_name_wait(message:types.Message, state:FSMContext):
     kino_name=message.text
     kino=kino_db.get_movie_by_name(kino_name)
+    telegram_id = message.from_user.id
+    username = message.from_user.username
+
+    if not user_db.select_user(telegram_id=telegram_id):
+        user_db.add_user(telegram_id=telegram_id, username=username)
+        logging.info(f"Foydalanuvchi qo'shildi telegram_id:{telegram_id} username: {username}")
+        count = user_db.count_users()
+        for admin in ADMINS:
+            await dp.bot.send_message(
+                admin,
+                f"Telegram ID: {telegram_id}\n"
+                f"Username : {username}\n"
+                f"Toliq ismi :{message.from_user.full_name}\n"
+                f"Foydalanuvchi bazaga qo'shildi\n\n"
+                f"Bazada <b>{count}</b>  ta foydalanuvchi bor"
+            )
     if kino:
         vd=kino['file_id']
         capt=kino['caption']

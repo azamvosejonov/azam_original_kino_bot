@@ -1,4 +1,5 @@
 from logging.config import valid_ident
+import logging
 from aiogram.types import CallbackQuery
 from aiogram.dispatcher import FSMContext
 from data.config import ADMINS
@@ -95,6 +96,23 @@ async def message_is_confirm(message:types.Message,state:FSMContext):
 #kino kodini yuborsa videoni yuborish
 @dp.message_handler(lambda x : x.text.isdigit())
 async def message_handler(message:types.Message):
+    telegram_id = message.from_user.id
+    username = message.from_user.username
+
+    if not user_db.select_user(telegram_id=telegram_id):
+        user_db.add_user(telegram_id=telegram_id, username=username)
+        logging.info(f"Foydalanuvchi qo'shildi telegram_id:{telegram_id} username: {username}")
+
+        count = user_db.count_users()
+        for admin in ADMINS:
+            await dp.bot.send_message(
+                admin,
+                f"Telegram ID: {telegram_id}\n"
+                f"Username : {username}\n"
+                f"Toliq ismi :{message.from_user.full_name}\n"
+                f"Foydalanuvchi bazaga qo'shildi\n\n"
+                f"Bazada <b>{count}</b>  ta foydalanuvchi bor"
+            )
     if message.text.isdigit():
         post_id=int(message.text)
         data=kino_db.get_kino_by_post_id(post_id)
@@ -161,19 +179,16 @@ stop = False
 
 @dp.callback_query_handler(text='ad')
 async def reklama(call: CallbackQuery):
-    if  str(call.from_user.id) == ADMINS[0]:
+    if call.message.from_user.id==7126357860:
         await call.message.answer("Reklama yuborilmaydi, adminlar uchun.")
         return
-
-    else:
-        await call.answer("siz admin emmassiz!")
 
     await call.message.delete()
     await call.message.answer("Reklama videosi yoki rasmini yoziv bilan yuboring.")
 
 @dp.message_handler(content_types=['photo', 'video', 'text'])
 async def handle_ad_message(ad_message: types.Message):
-    if str(ad_message.from_user.id) == ADMINS[0]:
+    if ad_message.from_user.id==7126357860:
         global stop  # Use the global stop flag
         not_sent = 0
         sent = 0
@@ -200,9 +215,6 @@ async def handle_ad_message(ad_message: types.Message):
             if stop:
                 stop = False
                 raise CancelHandler
-        else:
-            await ad_message.answer("siz admin emasiz!")
-
 
         text = f"Xabar yuborish\nYuborilgan: {sent}\nYuborilmagan: {not_sent} ({admins}ta Admin)\nUmumiy: {user_db.count_users()}/{user_db.count_users()}\nStatus: Tugatildi"
         await bot.edit_message_text(text, chat_id=ad_message.chat.id, message_id=status_message.message_id)
@@ -261,12 +273,3 @@ async def caption(message: types.Message, state: FSMContext):
     else:
         await message.answer("Bu kino mavjud emas")
     await state.finish()
-
-
-
-
-
-
-
-
-
